@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import mercure from "../../assets/mercure.jpg";
 import mars from "../../assets/mars.jpeg";
@@ -12,16 +13,32 @@ import "./Quiztitles.css";
 
 function Quiztitles() {
   const navigate = useNavigate();
-  const quizzes = [
-    { id: 1, title: "Mercure", image: mercure, score: 70 },
-    { id: 2, title: "Vénus", image: venus, score: 40 },
-    { id: 3, title: "Jupiter", image: jupiter, score: 90 },
-    { id: 4, title: "Saturne", image: saturne, score: 90 },
-    { id: 5, title: "Terre", image: terre, score: 90 },
-    { id: 6, title: "Uranus", image: Uranus, score: 90 },
-    { id: 7, title: "Neptune", image: neptune, score: 90 },
-    { id: 8, title: "Mars", image: mars, score: 90 },
-  ];
+  const [quizzes, setQuizzes] = useState([
+    { id: 1, title: "Mercure", image: mercure, score: 0 },
+    { id: 2, title: "Vénus", image: venus, score: 0 },
+    { id: 3, title: "Jupiter", image: jupiter, score: 0 },
+    { id: 4, title: "Saturne", image: saturne, score: 0 },
+    { id: 5, title: "Terre", image: terre, score: 0 },
+    { id: 6, title: "Uranus", image: Uranus, score: 0 },
+    { id: 7, title: "Neptune", image: neptune, score: 0 },
+    { id: 8, title: "Mars", image: mars, score: 0 },
+  ]);
+
+  // Fonction pour charger les scores depuis le localStorage  
+  useEffect(() => {
+    const loadScores = () => {
+      const updatedQuizzes = quizzes.map(quiz => {
+        const savedScore = localStorage.getItem(`quiz_${quiz.id}_score`);
+        return {
+          ...quiz,
+          score: savedScore ? parseInt(savedScore) : 0
+        };
+      });
+      setQuizzes(updatedQuizzes);
+    };
+
+    loadScores();
+  }, []);
 
   return (
     <div className="App" style={{ backgroundImage: `url(${background})` }}>
@@ -66,9 +83,9 @@ function Quiztitles() {
                 backgroundColor: '#932dad'
               }}></div>
             </div>
-            <p style={{ marginBottom: '0.5rem' }}>{quiz.score}%</p>
+            <p style={{ marginBottom: '0.5rem' }}>{quiz.score}% de bonnes réponses</p>
             <button
-              onClick={() => navigate('/quizcontent')}
+              onClick={() => navigate('/quizcontent', { state: { quizId: quiz.id } })}
               style={{
                 backgroundColor: '#932dad',
                 color: 'white',

@@ -1,45 +1,18 @@
-/* eslint-disable react/prop-types 
+import { useState, useEffect } from "react";
+import mercure from "../assets/mercure.jpg"; // (à remplacer par une props ou autre selon le quiz)  
+import { useLocation } from "react-router-dom";
 
-const Result = ({userAnswers, questions, resetQuiz = () => {}}) => {
-    const correctAnswers = userAnswers.filter((answer) => answer).length;
-  
-    return (
-      <div className="results">
-        <h2>Results</h2>
-        <p>
-          You answered {correctAnswers} out of {questions.length} questions{" "}
-          <span onClick={resetQuiz}>Click here to Retry</span>
-        </p>
-        <ul>
-          {questions.map((question, index) => {
-            return (
-              <li key={index} data-correct={userAnswers[index]}>
-                Q{index + 1}. {question.question}
-                <b>
-                  {userAnswers[index]
-                    ? ""
-                    : `- ${
-                        question.answerOptions.find((ans) => ans.isCorrect).text
-                      }`}
-                </b>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    );
-  };
-  
-  export default Result;
-  */
-  /* eslint-disable react/prop-types */
-import { useState } from "react";
-import mercure from "../assets/mercure.jpg"; // (à remplacer par une props ou autre selon le quiz)
-
-const Result = ({ userAnswers, questions, resetQuiz = () => {} }) => {
+const Result = ({ userAnswers, questions, resetQuiz = () => { } }) => {
   const [showDetails, setShowDetails] = useState(false);
   const correctAnswers = userAnswers.filter((answer) => answer).length;
   const score = Math.round((correctAnswers / questions.length) * 100);
+  const location = useLocation();
+  const quizId = location.state?.quizId || 1; // Utiliser l'ID du quiz passé via state ou par défaut 1  
+
+  // Sauvegarder le score dans localStorage  
+  useEffect(() => {
+    localStorage.setItem(`quiz_${quizId}_score`, score.toString());
+  }, [score, quizId]);
 
   return (
     <div style={{
