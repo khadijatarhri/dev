@@ -15,29 +15,47 @@ import "./Quiztitles.css";
 function Quiztitles() {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([
-    { id: 1, title: "Mercure", image: mercure, score: null },
-    { id: 2, title: "Vénus", image: venus, score: null },
-    { id: 3, title: "Jupiter", image: jupiter, score: null },
-    { id: 4, title: "Saturne", image: saturne, score: null },
-    { id: 5, title: "Terre", image: terre, score: null },
-    { id: 6, title: "Uranus", image: Uranus, score: null },
-    { id: 7, title: "Neptune", image: neptune, score: null },
-    { id: 8, title: "Mars", image: mars, score: null },
+    { id: 1, title: "Mercure", image: mercure, score: 0 },
+    { id: 2, title: "Vénus", image: venus, score: 0 },
+    { id: 3, title: "Jupiter", image: jupiter, score: 0 },
+    { id: 4, title: "Saturne", image: saturne, score: 0 },
+    { id: 5, title: "Terre", image: terre, score: 0 },
+    { id: 6, title: "Uranus", image: Uranus, score: 0 },
+    { id: 7, title: "Neptune", image: neptune, score: 0 },
+    { id: 8, title: "Mars", image: mars, score: 0 },
   ]);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
+
+    // D'abord, charger les scores depuis localStorage  
+    const updatedQuizzesFromLocal = quizzes.map(quiz => {
+      const savedScore = localStorage.getItem(`quiz_${quiz.title}_score`);
+      return {
+        ...quiz,
+        score: savedScore ? parseInt(savedScore) : 0
+      };
+    });
+
+    setQuizzes(updatedQuizzesFromLocal);
+
+    // Ensuite, essayer de charger depuis le backend (mais ne pas écraser les scores locaux)  
     ScoreService.getUserScores()
       .then(response => {
         const userScores = response.data;
         setQuizzes(prevQuizzes =>
           prevQuizzes.map(quiz => {
             const matchingScore = userScores.find(s => s.nomQuiz === quiz.title);
+            const localScore = localStorage.getItem(`quiz_${quiz.title}_score`);
+
+            // Utiliser le score local s'il existe, sinon utiliser le score du backend  
+            const finalScore = localScore ? parseInt(localScore) : (matchingScore ? matchingScore.score : 0);
+
             return {
               ...quiz,
-              score: matchingScore ? matchingScore.score : 0
+              score: finalScore
             };
           })
         );
@@ -45,6 +63,7 @@ function Quiztitles() {
       })
       .catch(error => {
         console.error('Erreur lors du chargement des scores:', error);
+        // Déjà chargé depuis localStorage, donc pas besoin de faire quoi que ce soit  
         setLoading(false);
       });
   }, []);
@@ -101,7 +120,7 @@ function Quiztitles() {
 
               {/* Pourcentage sous la barre */}
               <p style={{ marginTop: '0.3rem', fontWeight: 'bold' }}>
-                {quiz.score}%
+                {quiz.score}% de bonnes réponses
               </p>
 
               <button

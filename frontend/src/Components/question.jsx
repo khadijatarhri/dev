@@ -24,7 +24,7 @@ const Question = ({question, onAnswerClick = () => {}}) => {
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 
-const Question = ({ question, onAnswerClick = () => {} }) => {
+const Question = ({ question, onAnswerClick = () => { } }) => {
   const [selectedOption, setSelectedOption] = useState(null);
 
   const handleOptionClick = (option) => {
@@ -39,27 +39,26 @@ const Question = ({ question, onAnswerClick = () => {} }) => {
   };
 
   return (
-    
+
     <div className="question">
       <h2>{question.question}</h2>
       <ul className="options">
         {question.answerOptions.map((option) => (
           <li key={option.text}>
             <button
-             onClick={() => handleOptionClick(option)}
-             className={selectedOption?.text === option.text ? "selected" : ""}
-             style={{
-              color: "white" ,
-              fontSize: "18px",
-              backdropFilter: "blur(2px)",  // Applique un flou à l'arrière-plan derrière l'élément
-              padding: "15px 20px",  // Espacement interne
-              borderRadius: "8px",  // Coins arrondis
-              backgroundColor: selectedOption?.text === option.text ? "#d3f9d8" : "rgba(0, 0, 0, 0)", // Utilisation d'un seul backgroundColor
-              border: selectedOption?.text === option.text ? "2px solid green" : "1px solid #ccc",  // Bordure conditionnelle
-            }}
-            
+              onClick={() => handleOptionClick(option)}
+              className={selectedOption?.text === option.text ? "selected" : ""}
+              style={{
+                color: selectedOption?.text === option.text ? "black" : "white",
+                fontSize: "18px",
+                backdropFilter: "blur(2px)",
+                padding: "15px 20px",
+                borderRadius: "8px",
+                backgroundColor: selectedOption?.text === option.text ? "#d3f9d8" : "rgba(0, 0, 0, 0)",
+                border: selectedOption?.text === option.text ? "2px solid green" : "1px solid #ccc",
+              }}
             >
-             {option.text}
+              {option.text}
             </button>
 
           </li>

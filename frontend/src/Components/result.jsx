@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import mercure from "../assets/mercure.jpg";
@@ -18,17 +18,48 @@ const Result = ({ userAnswers, questions, resetQuiz = () => { }, score, planetNa
 
   const finalScore = score || Math.round((correctAnswers / questions.length) * 100);
 
+  // Log pour déboguer le nom de la planète  
+  useEffect(() => {
+    console.log("Nom de la planète reçu:", planetName);
+  }, [planetName]);
+
+  // Sauvegarder le score dans localStorage immédiatement    
+  useEffect(() => {
+    if (planetName) {
+      localStorage.setItem(`quiz_${planetName}_score`, finalScore.toString());
+    }
+  }, [finalScore, planetName]);
+
   const handleSaveScore = () => {
-    onSaveScore(finalScore);
-    setScoreSaved(true);
-    setTimeout(() => {
-      navigate('/quiz');
-    }, 1500);
+    // Sauvegarder dans localStorage    
+    if (planetName) {
+      localStorage.setItem(`quiz_${planetName}_score`, finalScore.toString());
+    }
+
+    // Essayer de sauvegarder via le backend    
+    try {
+      onSaveScore(finalScore);
+      setScoreSaved(true);
+
+      // Forcer un rechargement de la page quiz pour voir les changements    
+      setTimeout(() => {
+        navigate('/quiz', { replace: true });
+      }, 1500);
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde du score:", error);
+      setScoreSaved(true);
+
+      // Même en cas d'erreur, rediriger vers la page quiz    
+      setTimeout(() => {
+        navigate('/quiz', { replace: true });
+      }, 1500);
+    }
   };
 
-  // Choix de l'image dynamique selon la planète
+  // Choix de l'image dynamique selon la planète    
   let planetImage = mercure;
   switch ((planetName || "").toLowerCase()) {
+    case "vénus":
     case "venus":
       planetImage = venus;
       break;
@@ -43,6 +74,7 @@ const Result = ({ userAnswers, questions, resetQuiz = () => { }, score, planetNa
       planetImage = jupiter;
       break;
     case "saturne":
+    case "saturn":
       planetImage = saturne;
       break;
     case "uranus":
@@ -140,7 +172,7 @@ const Result = ({ userAnswers, questions, resetQuiz = () => { }, score, planetNa
             {questions.map((question, index) => {
               const correctText = question.answerOptions.find((ans) => ans.isCorrect).text;
               return (
-                <li key={index} style={{ color: userAnswers[index] ? 'lightgreen' : 'red', marginBottom: '10px' }}>
+                <li key={index} style={{ color: userAnswers[index] ? 'lightgreen' : 'white', marginBottom: '10px' }}>
                   <strong>Q{index + 1}:</strong> {question.question}
                   {!userAnswers[index] && (
                     <div>Bonne réponse: <b>{correctText}</b></div>
